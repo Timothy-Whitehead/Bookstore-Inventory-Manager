@@ -75,17 +75,17 @@ def add_to_database(data_tuple, db, cursor):
 
 # deletes data from table
 def remove_book(id, db, cursor):
-    cursor.execute(f'''DELETE FROM warehouse WHERE id = {id}''')
+    cursor.execute('''DELETE FROM warehouse WHERE id = ?''', id)
     db.commit()
 
 # updates data in table
 def alter_database(book_num, field, alteration, db, cursor):
-    cursor.execute(f'''UPDATE warehouse SET {field} = "{alteration}" WHERE id = {book_num}''')
+    cursor.execute('''UPDATE warehouse SET ? = ? WHERE id = ?''', field, alteration, book_num)
     db.commit()
 
 # Searches for specific book data by title or author
 def search_book(search_data, db, cursor):
-    cursor.execute(f'''SELECT * FROM warehouse WHERE title LIKE \"%{search_data}\"''')
+    cursor.execute('''SELECT * FROM warehouse WHERE title LIKE ?"''', search_data)
     search_item = cursor.fetchmany()
 
     for row in search_item:
@@ -95,7 +95,7 @@ def search_book(search_data, db, cursor):
 
 # Searches for specific book data by ID number
 def search_book_id( search_data, db, cursor):
-    cursor.execute(f'''SELECT * FROM warehouse WHERE id = {search_data}''')
+    cursor.execute('''SELECT * FROM warehouse WHERE id = ?''', search_data)
     search_item = cursor.fetchmany()
     for row in search_item:
         book = Book(row[0], row[1], row[2], row[3])
@@ -140,11 +140,11 @@ while True:
         if feature_choice == "0":
             pass
         elif feature_choice == "1":
-            search_data = get_num("Please enter the ID of the book you are searching for. \n")
+            search_data = (get_num("Please enter the ID of the book you are searching for. \n"),)
             search_book_id(search_data, db, cursor)
         elif feature_choice == "2":
             
-            search_data = input(f"Please enter the title of the book you are searching for.\n")
+            search_data = ("%"+input(f"Please enter the title of the book you are searching for.\n")+%,)
             search_book(search_data, db, cursor)
         if book_list:
             print_table(table_headers,book_list)
@@ -153,13 +153,13 @@ while True:
 
     elif option == "3":
         #add new book
-        id = get_num("Please enter the book id: ")
-        title = input("Please enter title: ")
-        author = input("Please enter the author's name: ")
-        qty = get_num("Please enter the quantity: ")
+        id = (get_num("Please enter the book id: "),)
+        title = (input("Please enter title: "),)
+        author = (input("Please enter the author's name: "),)
+        qty = (get_num("Please enter the quantity: "),)
         add_to_database((id, title, author, qty), db, cursor)
 
-        pass
+        
     elif option == "4":
         book_num = get_num("Please enter the id number of the book you wish to update")
         print("""What would you like to change?
@@ -169,36 +169,31 @@ while True:
         0. Return to main menu""")
         alt_option = menu_choice(["1", "2", "3", "0"])
         if alt_option == "1":
-            field = "Title"
-            new_title = input("Please enter the updated title: ")
+            field = ("Title",)
+            new_title = (input("Please enter the updated title: "),)
             alter_database(book_num, field, new_title, db, cursor)
 
         elif alt_option == "2":
-            field = "Author"
-            new_author = input("Please enter updated author name: ")
+            field = ("Author",)
+            new_author = (input("Please enter updated author name: "),)
             alter_database(book_num, field, new_author, db, cursor)
         
         elif alt_option == "3":
-            field = "Qty"
-            new_quant = get_num("Please enter the new quantity: ")
+            field = ("Qty",)
+            new_quant = (get_num("Please enter the new quantity: "),)
             alter_database(book_num, field, new_quant, db, cursor)
 
 
-        #alter book data
-        pass
+        
+        
     elif option == "5":
         #delete book
-        id = get_num("\nPlease ener the ID number of the book you wish to delete or enter '0' to return to menu.\n")
+        id = (get_num("\nPlease ener the ID number of the book you wish to delete or enter '0' to return to menu.\n"),)
         if id == "0":
             continue
         else:
             remove_book(id, db, cursor)
-        pass
 
-    elif option == "4":
-        
-        #search
-        pass
     elif option == "0":
         db.close()
         quit()
